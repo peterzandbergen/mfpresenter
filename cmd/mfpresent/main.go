@@ -104,13 +104,21 @@ func (c *Config) initConfigFromOptions() {
 // envValid checks if the settings are valid (exec is present, cache dir can be
 // created.
 func envValid(c Config) bool {
+	// TODO: implement this function.
+	// Check if the player exists.
+	// Check if the monitor directory exists.
+	// Check if the cache directory exists.
 	return false
 }
 
 // Run starts the monitor loop for the USB directory, default is taken from
 // the configuration settings.
-func Run() {
-	// TODO Fix this function.
+func Run() error {
+	// TODO: Fix this function.
+	// Start the player if there is a file in the cache.
+	for {
+		// Wait for changes in the directory.
+	}
 }
 
 func main() {
@@ -120,10 +128,11 @@ func main() {
 
 	// Check the environment.
 	if !envValid(*conf) {
-		// Abort.
+		// Log the error and abort.
+		os.Exit(1)
 	}
 	// Start the processes.
-
-	// Test
-	// d := watcher.Dir
+	if err := Run(); err != nil {
+		// Log the error.
+	}
 }
