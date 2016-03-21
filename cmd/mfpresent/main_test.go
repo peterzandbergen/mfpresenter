@@ -11,6 +11,9 @@ func TestNewConfig(t *testing.T) {
 	if c.CheckDir != DefaultCheckDir {
 		t.Errorf("CheckDir value is not correct: %s", c.CheckDir)
 	}
+	if c.CacheDir != DefaultCacheDir {
+		t.Errorf("CheckDir value is not correct: %s", c.CacheDir)
+	}
 	if c.PlayerExec != DefaultPlayerExec {
 		t.Errorf("PlayerProgram value is not correct: %s", c.PlayerExec)
 	}
@@ -22,4 +25,3 @@ func TestNewConfig(t *testing.T) {
 		t.Errorf("MediaExtension[0] not equal to \"mp4\": %s", c.MediaFileExtensions[0])
 	}
 }
-
