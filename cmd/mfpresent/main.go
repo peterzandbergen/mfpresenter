@@ -5,6 +5,7 @@ import (
 	"flag"
 	"os"
 	"strings"
+	"fmt"
 )
 
 const (
@@ -34,7 +35,11 @@ var (
 	FlagCacheDir = flag.String("cache-dir", "", "Cache directory, defaults to /var/lib/mfpresent")
 	// FlagPlayerExec is the command line option for the player exec name.
 	FlagPlayerExec = flag.String("player-exec", "", "Player executable, default is omxplayer.")
-	// FlagExtensions is the command line option for the valid file extensions.
+	// FlagExtensions is the command line option for the vaif err != nil {
+		// log the error.
+		retError.Err = "player not present"
+		retError.Errors = append(retError.Errors, retError.Err)
+	}lid file extensions.
 	FlagExtensions = flag.String("default-extensions", "", "The valid file extensions separated by a colon. Default is mp4.")
 )
 
@@ -101,14 +106,46 @@ func (c *Config) initConfigFromOptions() {
 	}
 }
 
+type EnvError struct {
+	Err    string
+	Errors []string
+}
+
+func (e *EnvError) Error() string {
+	// Return a nice error message.
+	return e.Err + e.Errors
+}
+
 // envValid checks if the settings are valid (exec is present, cache dir can be
 // created.
-func envValid(c Config) bool {
+func envValid(c Config) error {
+	retError := &EnvError{}
+
 	// TODO: implement this function.
 	// Check if the player exists.
+	fi, err := os.Stat(c.PlayerExec)
+	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0x100) == 0 {
+		// File cannot be executed.
+		retError.Err = "player not present or executable"
+		retError.Errors = append(retError.Errors, retError.Err)
+	}
+
 	// Check if the monitor directory exists.
+	fi, err = os.Stat(c.CheckDir)
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x400) == 0 {
+		retError.Err = "monitor dir not present or not readable"
+		retError.Errors = append(retError.Errors, retError.Err)
+	}
 	// Check if the cache directory exists.
-	return false
+	fi, err = os.Stat(c.CacheDir)
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x600) == 0 {
+		retError.Err = "cache dir not present or not rw"
+		retError.Errors = append(retError.Errors, retError.Err)
+	}
+	if len(retError.Err) == 0 {
+		retError = nil
+	}
+	return retError
 }
 
 // Run starts the monitor loop for the USB directory, default is taken from
@@ -127,7 +164,7 @@ func main() {
 	conf.initConfig()
 
 	// Check the environment.
-	if !envValid(*conf) {
+	if err := envValid(*conf); err != nil {
 		// Log the error and abort.
 		os.Exit(1)
 	}

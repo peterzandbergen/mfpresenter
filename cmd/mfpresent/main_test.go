@@ -25,3 +25,10 @@ func TestNewConfig(t *testing.T) {
 		t.Errorf("MediaExtension[0] not equal to \"mp4\": %s", c.MediaFileExtensions[0])
 	}
 }
+
+func TestCheckConfig(t *testing.T) {
+	c := Config{}
+	if err := envValid(c); err != nil {
+		t.Errorf("envValid failed: %s", err.Error())
+	}
+}
