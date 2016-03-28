@@ -26,8 +26,18 @@ func TestNewConfig(t *testing.T) {
 	}
 }
 
+const testRootDir = "/home/peza/Documents/workspace-fileplayer/test/mfpresenter/"
+const testCacheDir = testRootDir + "cachedir"
+const testCheckDir = testRootDir + "checkdir"
+const testPlayerExec = testRootDir + "test.exec.sh"
+
 func TestCheckConfig(t *testing.T) {
-	c := Config{}
+	c := &Config{
+		CheckDir:   testCheckDir,
+		CacheDir:   testCacheDir,
+		PlayerExec: testPlayerExec,
+	}
+
 	if err := envValid(c); err != nil {
 		t.Errorf("envValid failed: %s", err.Error())
 	}

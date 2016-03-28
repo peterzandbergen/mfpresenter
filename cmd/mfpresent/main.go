@@ -3,9 +3,9 @@ package main
 
 import (
 	"flag"
+	// "fmt"
 	"os"
 	"strings"
-	"fmt"
 )
 
 const (
@@ -35,11 +35,7 @@ var (
 	FlagCacheDir = flag.String("cache-dir", "", "Cache directory, defaults to /var/lib/mfpresent")
 	// FlagPlayerExec is the command line option for the player exec name.
 	FlagPlayerExec = flag.String("player-exec", "", "Player executable, default is omxplayer.")
-	// FlagExtensions is the command line option for the vaif err != nil {
-		// log the error.
-		retError.Err = "player not present"
-		retError.Errors = append(retError.Errors, retError.Err)
-	}lid file extensions.
+	// FlagExtensions is the command line option for the va
 	FlagExtensions = flag.String("default-extensions", "", "The valid file extensions separated by a colon. Default is mp4.")
 )
 
@@ -112,38 +108,43 @@ type EnvError struct {
 }
 
 func (e *EnvError) Error() string {
+	//	if e == nil {
+	//		return "error was nil"
+	//	}
 	// Return a nice error message.
-	return e.Err + e.Errors
+	return e.Err // + e.Errors
 }
 
 // envValid checks if the settings are valid (exec is present, cache dir can be
 // created.
-func envValid(c Config) error {
+func envValid(c *Config) error {
 	retError := &EnvError{}
 
-	// TODO: implement this function.
 	// Check if the player exists.
 	fi, err := os.Stat(c.PlayerExec)
 	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0x100) == 0 {
 		// File cannot be executed.
 		retError.Err = "player not present or executable"
 		retError.Errors = append(retError.Errors, retError.Err)
+		return retError
 	}
 
 	// Check if the monitor directory exists.
 	fi, err = os.Stat(c.CheckDir)
-	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x400) == 0 {
-		retError.Err = "monitor dir not present or not readable"
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x700) == 0 {
+		retError.Err = "check dir not present or not readable"
 		retError.Errors = append(retError.Errors, retError.Err)
+		return retError
 	}
 	// Check if the cache directory exists.
 	fi, err = os.Stat(c.CacheDir)
-	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x600) == 0 {
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x700) == 0 {
 		retError.Err = "cache dir not present or not rw"
 		retError.Errors = append(retError.Errors, retError.Err)
+		return retError
 	}
-	if len(retError.Err) == 0 {
-		retError = nil
+	if len(retError.Errors) == 0 {
+		return nil
 	}
 	return retError
 }
@@ -164,7 +165,7 @@ func main() {
 	conf.initConfig()
 
 	// Check the environment.
-	if err := envValid(*conf); err != nil {
+	if err := envValid(conf); err != nil {
 		// Log the error and abort.
 		os.Exit(1)
 	}
