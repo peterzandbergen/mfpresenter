@@ -5,6 +5,7 @@ import (
 	"flag"
 	// "fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -121,8 +122,13 @@ func envValid(c *Config) error {
 	retError := &EnvError{}
 
 	// Check if the player exists.
+	epath, err := exec.LookPath(c.PlayerExec)
+	if err != nil {
+		return err
+	}
+	c.PlayerExec = epath
 	fi, err := os.Stat(c.PlayerExec)
-	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0x100) == 0 {
+	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0500) == 0 {
 		// File cannot be executed.
 		retError.Err = "player not present or executable"
 		retError.Errors = append(retError.Errors, retError.Err)
@@ -131,14 +137,14 @@ func envValid(c *Config) error {
 
 	// Check if the monitor directory exists.
 	fi, err = os.Stat(c.CheckDir)
-	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x700) == 0 {
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0400) == 0 {
 		retError.Err = "check dir not present or not readable"
 		retError.Errors = append(retError.Errors, retError.Err)
 		return retError
 	}
 	// Check if the cache directory exists.
 	fi, err = os.Stat(c.CacheDir)
-	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0x700) == 0 {
+	if err != nil || !fi.IsDir() || (fi.Mode().Perm()&0600) == 0 {
 		retError.Err = "cache dir not present or not rw"
 		retError.Errors = append(retError.Errors, retError.Err)
 		return retError

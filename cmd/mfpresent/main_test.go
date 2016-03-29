@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 )
 
@@ -41,4 +42,27 @@ func TestCheckConfig(t *testing.T) {
 	if err := envValid(c); err != nil {
 		t.Errorf("envValid failed: %s", err.Error())
 	}
+}
+
+func TestShowPermissions(t *testing.T) {
+	var fi os.FileInfo
+	var err error
+	var path string
+
+	// 	t.Logf("0x400 = %d", 0400)
+
+	path = testCacheDir
+	fi, err = os.Stat(path)
+	if err != nil {
+		t.Errorf("Cannot stat %s: %s", path, err.Error())
+	}
+	// t.Logf("fi of %s: %s", path, fi.Mode().Perm().String())
+
+	path = testCheckDir
+	fi, err = os.Stat(path)
+	if err != nil {
+		t.Errorf("Cannot stat %s: %s", path, err.Error())
+	}
+	_ = fi
+	// t.Logf("fi of %s: %s", path, fi.Mode().Perm().String())
 }

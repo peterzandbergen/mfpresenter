@@ -27,6 +27,11 @@ func findNewest(path string, exts []string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	// Make path absolute.
+	ap, err := filepath.Abs(path)
+	if err == nil {
+		path = ap
+	}
 	filepath.Walk(path, func(p string, fi os.FileInfo, err error) error {
 		// Only regular files.
 		if !fi.Mode().IsRegular() {

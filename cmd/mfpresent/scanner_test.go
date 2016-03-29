@@ -57,5 +57,6 @@ func TestFindNewestPass(t *testing.T) {
 	if err != nil {
 		t.Errorf("error: %s", err.Error())
 	}
-	t.Logf("found path: %s", s)
+	_ = s
+	// t.Logf("found path: %s", s)
 }
