@@ -35,8 +35,8 @@ var (
 	// FlagCacheDir
 	FlagCacheDir = flag.String("cache-dir", "", "Cache directory, defaults to /var/lib/mfpresent")
 	// FlagPlayerExec is the command line option for the player exec name.
-	FlagPlayerExec = flag.String("player-exec", "", "Player executable, default is omxplayer.")
-	// FlagExtensions is the command line option for the va
+	FlagPlayerExec = flag.String("player-exec", "", "Player command, default is omxplayer.")
+	// FlagExtensions is the command line option for the valid extensions.
 	FlagExtensions = flag.String("default-extensions", "", "The valid file extensions separated by a colon. Default is mp4.")
 )
 

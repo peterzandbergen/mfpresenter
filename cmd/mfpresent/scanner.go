@@ -33,6 +33,10 @@ func findNewest(path string, exts []string) (string, error) {
 		path = ap
 	}
 	filepath.Walk(path, func(p string, fi os.FileInfo, err error) error {
+		// Test for an error.
+		if err != nil {
+			return nil
+		}
 		// Only regular files.
 		if !fi.Mode().IsRegular() {
 			return nil

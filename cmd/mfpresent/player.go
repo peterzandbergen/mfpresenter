@@ -4,58 +4,95 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 // OMX player.
 type Player struct {
-	nowPlaying string
-	execName   string
-	cmd        exec.Cmd
-	proc       os.Process
+	exe  string
+	args []string
+	cmd  *exec.Cmd // if playing then not nil
+}
+
+func splitCommandLine(cmdline string) (exe string, args []string, err error) {
+	parts := strings.Split(cmdline, " ")
+	if len(parts) < 1 {
+		return "", nil, errors.New("Illegal player command")
+	}
+	exe = parts[0]
+	if len(parts[1:]) > 0 {
+		args = append(args, parts[1:]...)
+	}
+	return exe, args, nil
+}
+
+func (p *Player) newCommand(exe string, args ...string) {
+
 }
 
 // NewPlayer returns a new player or an error if the exec does not exist.
-func NewPlayer(ename string) (*Player, error) {
-	// Test if the executable exists.
-	// Check if the player exists.
-	fi, err := os.Stat(ename)
-	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0x100) == 0 {
-		// File cannot be executed.
+// playercmd is a string separated by spaces. It is the commmand that
+// will have the name of the file to be played appended.
+func NewPlayer(playercmd string) (*Player, error) {
+	var p = &Player{}
+	// Extract the executable name and the parameters.
+	if exe, args, err := splitCommandLine(playercmd); err != nil {
 		return nil, err
+	} else {
+		p.exe = exe
+		p.args = args // If nowPlaying has len() > 0 then the player is playing.
 	}
-	return &Player{
-		execName: ename,
-	}, nil
+
+	// Test if the executable exists and can execute.
+	//	if fi, err := os.Stat(c.Path); err != nil || fi.IsDir() || (fi.Mode().Perm()&0100) == 0 {
+	//		return nil, err
+	//	}
+	return p, nil
 }
 
 // Start starts the player with the given filename. If the player is already
-// running, then first kill it.
+// running, then stop it first.
 func (p *Player) Start(filename string) error {
-	if len(p.nowPlaying) > 0 {
-		p.kill()
-		p.nowPlaying = ""
+	// Stop if we're currently playing a file.
+	if p.cmd != nil {
+		p.stop()
 	}
-	p.nowPlaying = filename
-	return p.start()
-}
-
-func (p *Player) Stop() error {
-	return p.kill()
-}
-
-// kill the running player.
-func (p *Player) kill() error {
-	return p.proc.Kill()
-}
-
-// start the player with the given file.
-func (p *Player) start() error {
+	// Test if the filename is given.
+	if len(filename) == 0 {
+		return errors.New("No filename given.")
+	}
 	// Check if the file exists and is readable.
-	fi, err := os.Stat(p.nowPlaying)
+	fi, err := os.Stat(filename)
 	if err != nil || (fi.Mode().Perm()&0400 == 0) {
 		return errors.New("Player: file to be played not found.")
 	}
-	// Build the command.
+	return p.start(filename)
+}
 
+func (p *Player) Stop() error {
+	if p.cmd == nil {
+		return errors.New("Was not playing.")
+	}
+	return p.stop()
+}
+
+// stop the running player.
+func (p *Player) stop() error {
+	p.cmd.Process.Kill()
+	p.cmd.Wait()
+	// Remove the file argument.
+	p.cmd = nil
+	return nil
+}
+
+// start the player with the given file.
+func (p *Player) start(filename string) error {
+	// Create the command.
+	p.cmd = exec.Command(p.exe, append(p.args, filename)...)
+	err := p.cmd.Start()
+	if err != nil {
+		p.cmd = nil
+		return err
+	}
 	return nil
 }
