@@ -1,4 +1,4 @@
-package main
+package scanner
 
 import (
 	"regexp"
@@ -46,17 +46,17 @@ func TestRegExp(t *testing.T) {
 	}
 }
 
-func TestFindNewestPass(t *testing.T) {
-	var exts = []string{
-		"mp4",
-		"mp5",
-		"mp6",
-	}
-	s, err := findNewest(testCheckDir, exts)
-	// Should pass.
-	if err != nil {
-		t.Errorf("error: %s", err.Error())
-	}
-	_ = s
-	// t.Logf("found path: %s", s)
-}
+//func TestFindNewestPass(t *testing.T) {
+//	var exts = []string{
+//		"mp4",
+//		"mp5",
+//		"mp6",
+//	}
+//	s, err := findNewest(testCheckDir, exts)
+//	// Should pass.
+//	if err != nil {
+//		t.Errorf("error: %s", err.Error())
+//	}
+//	_ = s
+//	// t.Logf("found path: %s", s)
+//}

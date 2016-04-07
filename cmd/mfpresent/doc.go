@@ -28,5 +28,5 @@ each extension.
 */
 package main
 
-// TODO: create sub packages for cli, player, scanner and watcher.
+// TODO: create sub packages for config, player, scanner and watcher.
 // TODO: refactor.

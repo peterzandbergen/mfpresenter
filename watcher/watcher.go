@@ -8,14 +8,12 @@ package watcher
 
 import "github.com/fsnotify/fsnotify"
 
-
 // Dir watches a directory for changes.
 type Dir struct {
-    w *fsnotify.Watcher
-    // Events     
+	w *fsnotify.Watcher
+	// Events
 }
 
-func New() (* Dir, error) {
-    return nil, nil 
+func New() (*Dir, error) {
+	return nil, nil
 }
-
