@@ -121,12 +121,12 @@ func (c *Config) EnvValid() error {
 	retError := &EnvError{}
 
 	// Check if the player exists.
-	epath, err := exec.LookPath(c.PlayerExec)
+	parts := strings.Split(c.PlayerExec, " ")
+	epath, err := exec.LookPath(parts[0])
 	if err != nil {
 		return err
 	}
-	c.PlayerExec = epath
-	fi, err := os.Stat(c.PlayerExec)
+	fi, err := os.Stat(epath)
 	if err != nil || fi.IsDir() || (fi.Mode().Perm()&0500) == 0 {
 		// File cannot be executed.
 		retError.Err = "player not present or executable"

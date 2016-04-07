@@ -2,6 +2,7 @@ package player
 
 import (
 	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -26,9 +27,9 @@ func splitCommandLine(cmdline string) (exe string, args []string, err error) {
 	return exe, args, nil
 }
 
-func (p *Player) newCommand(exe string, args ...string) {
+//func (p *Player) newCommand(exe string, args ...string) {
 
-}
+//}
 
 // NewPlayer returns a new player or an error if the exec does not exist.
 // playercmd is a string separated by spaces. It is the commmand that
@@ -47,6 +48,7 @@ func NewPlayer(playercmd string) (*Player, error) {
 	//	if fi, err := os.Stat(c.Path); err != nil || fi.IsDir() || (fi.Mode().Perm()&0100) == 0 {
 	//		return nil, err
 	//	}
+	log.Printf("created new player from command: %s\n%s %s", playercmd, p.exe, p.args)
 	return p, nil
 }
 
