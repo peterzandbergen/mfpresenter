@@ -2,10 +2,14 @@ package main
 
 import (
 	"flag"
-	"log"
+	stdlog "log"
 	"os/exec"
 	"time"
+
+	"github.com/peterzandbergen/mfpresenter"
 )
+
+var log stdlog.Logger
 
 var playercmd = flag.String("playercmd", "<empty>", "")
 

@@ -34,7 +34,7 @@ func splitCommandLine(cmdline string) (exe string, args []string, err error) {
 // NewPlayer returns a new player or an error if the exec does not exist.
 // playercmd is a string separated by spaces. It is the commmand that
 // will have the name of the file to be played appended.
-func NewPlayer(playercmd string) (*Player, error) {
+func New(playercmd string) (*Player, error) {
 	var p = &Player{}
 	// Extract the executable name and the parameters.
 	if exe, args, err := splitCommandLine(playercmd); err != nil {

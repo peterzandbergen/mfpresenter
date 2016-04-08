@@ -11,7 +11,7 @@ const exetest = "vlc --fullscreen --loop"
 const file = "/media/sf_Peter/Desktop/raspitest.mp4"
 
 func TestPlayShell(t *testing.T) {
-	p, err := NewPlayer(exetest)
+	p, err := New(exetest)
 	if err != nil {
 		t.Fatalf("Error creating player: %s", err.Error())
 	}

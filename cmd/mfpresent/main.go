@@ -1,19 +1,24 @@
 // mfpresenter project main.go
+// Test command:
+//      ./mfpresent --player-exec "vlc --loop" --cache-dir /home/peza/Desktop/CacheDir --check-dir /home/peza/Desktop/CheckDir
 package main
 
 import (
 	"fmt"
 	"io"
-	"log"
+	// "log"
 	"os"
 	"path/filepath"
 
+	"github.com/peterzandbergen/mfpresenter"
 	"github.com/peterzandbergen/mfpresenter/config"
 	"github.com/peterzandbergen/mfpresenter/player"
 	"github.com/peterzandbergen/mfpresenter/scanner"
 
 	"github.com/fsnotify/fsnotify"
 )
+
+var log = mfpresenter.Logger()
 
 func CopyFile(dstName, srcName string) (written int64, err error) {
 	src, err := os.Open(srcName)
@@ -60,7 +65,7 @@ func playableFile(dir string) (string, error) {
 // the configuration settings.
 func run(conf *config.Config) error {
 	// Create the player.
-	p, err := player.NewPlayer(conf.PlayerExec)
+	p, err := player.New(conf.PlayerExec)
 	if err != nil {
 		return err
 	}
@@ -90,15 +95,22 @@ func run(conf *config.Config) error {
 
 	for {
 		select {
-		case <-n.Events:
+		case evt := <-n.Events:
+			log.Printf("fsnotify event: %s", evt.String())
+			if evt.Op != fsnotify.Create {
+				break
+			}
 			err := scanAndCopyFile(conf)
 			if err != nil {
+				log.Printf("Error copying new file to the cache dir: %s", err.Error())
 				break
 			}
 			f, err := playableFile(conf.CacheDir)
 			if err != nil {
+				log.Printf("Error finding the playable file: %s", err.Error())
 				break
 			}
+			log.Printf("New file found, restarting the player with: %s", f)
 			p.Start(f)
 		}
 	}
@@ -122,14 +134,12 @@ func main() {
 	conf, err := initConfig()
 	if err != nil {
 		// Log the error and abort.
-		fmt.Println(err.Error())
 		log.Fatalf("initConfig failed:%s", err.Error())
 		os.Exit(1)
 	}
 
 	// Start the processes.
 	if err := run(conf); err != nil {
-		fmt.Println(err.Error())
 		log.Fatalf("Error starting the run process: %s", err.Error())
 		os.Exit(2)
 	}

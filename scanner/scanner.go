@@ -6,8 +6,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/peterzandbergen/mfpresenter"
 )
 
+var log = mfpresenter.Logger()
 var ErrNotFound = errors.New("No matching file found.")
 
 func buildExtRexexp(exts []string) (*regexp.Regexp, error) {
