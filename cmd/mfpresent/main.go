@@ -9,6 +9,7 @@ import (
 	// "log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/peterzandbergen/mfpresenter"
 	"github.com/peterzandbergen/mfpresenter/config"
@@ -100,6 +101,8 @@ func run(conf *config.Config) error {
 		case evt := <-n.Events:
 			log.Printf("fsnotify event: %s", evt.String())
 			newFile = evt.Op == fsnotify.Create
+			// Sleep for 5 seconds.
+			<-time.After(5 * time.Second)
 		}
 	}
 	p.Stop()
