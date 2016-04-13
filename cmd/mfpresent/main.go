@@ -71,18 +71,6 @@ func run(conf *config.Config) error {
 	}
 	log.Println("Player created.")
 
-	// Perform initial scan of the check dir.
-	if err := scanAndCopyFile(conf); err != nil && err != scanner.ErrNotFound {
-		return err
-	}
-
-	// Get the playable file.
-	f, err := playableFile(conf.CacheDir)
-	if err == nil {
-		p.Start(f)
-		log.Printf("Player started with file: %s\n", f)
-	}
-
 	// Start the notifier.
 	n, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -97,6 +85,7 @@ func run(conf *config.Config) error {
 	var newFile = true
 	for {
 		if newFile {
+			p.Stop()
 			scanAndCopyFile(conf)
 			f, err := playableFile(conf.CacheDir)
 			if err != nil {
