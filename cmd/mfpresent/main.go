@@ -70,6 +70,7 @@ func run(conf *config.Config) error {
 		return err
 	}
 	log.Println("Player created.")
+
 	// Perform initial scan of the check dir.
 	if err := scanAndCopyFile(conf); err != nil && err != scanner.ErrNotFound {
 		return err
@@ -93,25 +94,23 @@ func run(conf *config.Config) error {
 		return err
 	}
 
+	var newFile = true
 	for {
-		select {
-		case evt := <-n.Events:
-			log.Printf("fsnotify event: %s", evt.String())
-			if evt.Op != fsnotify.Create {
-				break
-			}
-			err := scanAndCopyFile(conf)
-			if err != nil {
-				log.Printf("Error copying new file to the cache dir: %s", err.Error())
-				break
-			}
+		if newFile {
+			scanAndCopyFile(conf)
 			f, err := playableFile(conf.CacheDir)
 			if err != nil {
 				log.Printf("Error finding the playable file: %s", err.Error())
-				break
+			} else {
+				log.Printf("New file found, restarting the player with: %s", f)
+				p.Start(f)
 			}
-			log.Printf("New file found, restarting the player with: %s", f)
-			p.Start(f)
+		}
+
+		select {
+		case evt := <-n.Events:
+			log.Printf("fsnotify event: %s", evt.String())
+			newFile = evt.Op == fsnotify.Create
 		}
 	}
 	p.Stop()
